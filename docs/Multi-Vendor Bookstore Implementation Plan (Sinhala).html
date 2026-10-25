@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>බහු-විකුණුම්කාර පොත් ඇණවුම් පද්ධතිය - සංවර්ධන සැලැස්ම (Implementation Plan)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg-page: #f8fafc;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans Sinhala', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding: 40px 20px;
+    }
+
+    .document-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      padding: 60px 50px;
+    }
+
+    /* Header */
+    .doc-header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .doc-title-group h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--secondary);
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .doc-title-group .subtitle {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .doc-badges {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-primary { background: #dbeafe; color: #1e40af; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+
+    /* Callout Card */
+    .callout-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border-left: 5px solid var(--primary);
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 35px;
+    }
+
+    .callout-box h3 {
+      font-size: 18px;
+      color: var(--secondary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Headings */
+    h2.section-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-number {
+      background: var(--primary);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 20px 0 30px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: var(--secondary);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #fafafa;
+    }
+
+    /* Code & Pre */
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 15px 0 25px;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #be185d;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Phase Cards */
+    .phase-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .phase-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .phase-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .phase-duration {
+      font-size: 12px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .task-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .task-list li {
+      position: relative;
+      padding-left: 28px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .task-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 18px;
+      height: 18px;
+      background: #dbeafe;
+      color: var(--primary);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Architecture Visual */
+    .arch-flow {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .arch-step-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .arch-box {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: left;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .arch-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .arch-box p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Print Button */
+    .print-bar {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-print {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-print:hover {
+      background: var(--primary-dark);
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .print-bar {
+        display: none;
+      }
+      .document-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .phase-card {
+        break-inside: avoid;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="document-container">
+    
+    <div class="print-bar">
+      <button class="btn-print" onclick="window.print()">
+        🖨️ PDF එකක් ලෙස Save / Print කරන්න
+      </button>
+    </div>
+
+    <!-- Header -->
+    <div class="doc-header">
+      <div class="doc-title-group">
+        <h1>බහු-විකුණුම්කාර පොත් ඇණවුම් පද්ධතිය</h1>
+        <div class="subtitle">Multi-Vendor Bookstore System • පියවරෙන් පියවර සංවර්ධන සැලැස්ම (Engineering Roadmap)</div>
+      </div>
+      <div class="doc-badges">
+        <span class="badge badge-primary">Doc Ver: 1.0.0 (සිංහල)</span>
+        <span class="badge badge-success">Approved Specification</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary Callout -->
+    <div class="callout-box">
+      <h3>🚀 මූලික සංකල්පය සහ සුවිශේෂත්වය (Core Innovation)</h3>
+      <p>
+        මෙම පද්ධතිය දිවයින පුරා විසිරී ඇති පොත් සාප්පු ජාලගත කරමින් ක්‍රියාත්මක වන ඩිජිටල් වෙළඳපොළකි (Multi-Vendor Marketplace). 
+        මෙහි ඇති ප්‍රධානතම සුවිශේෂී ලක්ෂණය වන්නේ, <strong>පාරිභෝගිකයා තෝරාගත් සාප්පුවේ පොතක තොග අවසන් වූ විට (Stock = 0), පද්ධතිය PostGIS තාක්ෂණය මඟින් ආසන්නතම හවුල්කාර සාප්පු සොයා ස්වයංක්‍රීයව ඇණවුම මාරු කිරීමට (Smart Out-of-Stock Auto-Routing)</strong> අවස්ථාව ලබා දීමයි.
+      </p>
+    </div>
+
+    <!-- System Architecture Visual -->
+    <h2 class="section-heading"><span class="section-number">01</span> පද්ධති ගෘහ නිර්මාණ ශිල්පය (System Architecture)</h2>
+    <div class="arch-flow">
+      <div class="arch-step-grid">
+        <div class="arch-box">
+          <h4>1. Client Web Portal</h4>
+          <p>Next.js & Tailwind CSS මඟින් පාරිභෝගික සහ සාප්පු හිමි අතුරුමුහුණත්.</p>
+        </div>
+        <div class="arch-box">
+          <h4>2. Core Commerce API</h4>
+          <p>Auth, Master Catalog, Multi-Store Cart & Checkout කළමනාකරණය.</p>
+        </div>
+        <div class="arch-box">
+          <h4>3. PostGIS Routing Engine</h4>
+          <p>ST_Distance මඟින් ආසන්නතම සාප්පු පෙරීම සහ 60-min Fail-safe ක්‍රමය.</p>
+        </div>
+        <div class="arch-box">
+          <h4>4. AI & Logistics</h4>
+          <p>FastAPI TF-IDF පොත් නිර්දේශ සහ Domex/Koombiyo කුරියර් Waybills.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relational Database Schema -->
+    <h2 class="section-heading"><span class="section-number">02</span> දත්ත සමුදාය සැලැස්ම (Multi-Vendor Database Schema)</h2>
+    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 12px;">
+      පද්ධතියේ සියලුම පොත් එකම Master Catalog එකක තබා, සාප්පුවල තොග සහ මිල වෙන වෙනම කළමනාකරණය වන අයුරින් පහත වගු සැකසේ:
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>වගුව (Table)</th>
+            <th>ප්‍රධාන තීරු (Columns)</th>
+            <th>කාර්යභාරය (Purpose)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>books</strong> (Master Catalog)</td>
+            <td><code>id</code>, <code>isbn</code>, <code>title</code>, <code>author</code>, <code>category</code>, <code>tags</code></td>
+            <td>ලංකාවේ සියලුම පොත්වල පොදු තොරතුරු (Universal ISBN record).</td>
+          </tr>
+          <tr>
+            <td><strong>bookstores</strong></td>
+            <td><code>id</code>, <code>name</code>, <code>location (Point 4326)</code>, <code>phone</code>, <code>rating</code></td>
+            <td>ජාලගත වී ඇති සියලුම හවුල්කාර සාප්පුවල GPS Coordinates සහ විස්තර.</td>
+          </tr>
+          <tr>
+            <td><strong>store_inventory</strong></td>
+            <td><code>id</code>, <code>store_id (FK)</code>, <code>book_id (FK)</code>, <code>price</code>, <code>stock_quantity</code></td>
+            <td>එක් එක් සාප්පුව සතු පොත් පිටපත් ගණන සහ විකුණුම් මිල.</td>
+          </tr>
+          <tr>
+            <td><strong>orders</strong></td>
+            <td><code>id</code>, <code>customer_name</code>, <code>assigned_store_id</code>, <code>is_routed</code>, <code>status</code></td>
+            <td>පාරිභෝගිකයාගේ ඇණවුම, භාරගත් සාප්පුව සහ මාරු වූ තත්ත්වය.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Out of Stock Routing Algorithm -->
+    <h2 class="section-heading"><span class="section-number">03</span> Smart Out-of-Stock Auto-Routing තාක්ෂණික සූත්‍රය</h2>
+    <p style="font-size: 14px; margin-bottom: 10px;">
+      පාරිභෝගිකයා තෝරාගත් සාප්පුවේ තොග 0 වූ විට ක්‍රියාත්මක වන PostGIS Geodesic Query එක:
+    </p>
+
+    <pre><code>-- පාරිභෝගිකයාගේ GPS ස්ථානයට ළඟම, තොග ඇති සාප්පු තේරීම
+SELECT 
+    s.id AS store_id,
+    s.name AS store_name,
+    inv.price AS book_price,
+    ROUND((ST_Distance(s.location, ST_MakePoint(:user_lng, :user_lat)::geography) / 1000)::numeric, 2) AS distance_km
+FROM bookstores s
+JOIN store_inventory inv ON s.id = inv.store_id
+WHERE inv.book_id = :requested_book_id
+  AND inv.stock_quantity > 0
+  AND s.is_active = TRUE
+ORDER BY distance_km ASC
+LIMIT 3;</code></pre>
+
+    <!-- 6-Phase Roadmap -->
+    <h2 class="section-heading"><span class="section-number">04</span> පියවරෙන් පියවර සංවර්ධන අදියර 6 (Implementation Roadmap)</h2>
+
+    <!-- Phase 1 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 1: මූලික යටිතල පහසුකම් සහ දත්ත සමුදාය (Infrastructure & DB Setup)</div>
+        <div class="phase-duration">සති 1 - 2</div>
+      </div>
+      <ul class="task-list">
+        <li>Next.js 14+ (App Router, TypeScript) සහ Tailwind CSS මඟින් Core Project එක සැකසීම.</li>
+        <li>PostgreSQL Server එකෙහි PostGIS extension සක්‍රීය කිරීම.</li>
+        <li>Prisma ORM මඟින් <code>books</code>, <code>bookstores</code>, <code>store_inventory</code>, <code>orders</code> Tables සාදා Migration එක සම්පූර්ණ කිරීම.</li>
+        <li>කොළඹ, නුවර, ගාල්ල ආදී ප්‍රදේශවල ප්‍රසිද්ධ සාප්පු 4ක් සැබෑ GPS ස්ථාන සහිතව Seed Data ලෙස ඇතුළත් කිරීම.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 2: සාප්පු හිමියන්ගේ පරිපාලක පුවරුව (Vendor Portal Dashboard)</div>
+        <div class="phase-duration">සති 2 - 3</div>
+      </div>
+      <ul class="task-list">
+        <li>Vendor Login සහ Role-based Authorization (RBAC).</li>
+        <li>සාප්පු හිමියාට Map එක මත තම සාප්පුවේ GPS පිහිටීම ලකුණු කිරීමේ පහසුකම.</li>
+        <li>Master Catalog එකෙන් පොත් තෝරා තමන්ගේ සාප්පුවේ මිල සහ Stock ප්‍රමාණය ඇතුළත් කිරීමේ පහසුකම.</li>
+        <li>සාප්පුව වෙත සෘජුව එන හෝ Auto-Route වී එන ඇණවුම් බලාගත හැකි Live Orders Center එක.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 3: පාරිභෝගික වෙළඳපොළ සහ Buyer Dashboard (Storefront & Buyer Portal)</div>
+        <div class="phase-duration">සති 3 - 4</div>
+      </div>
+      <ul class="task-list">
+        <li>නවීන Bookstore Homepage: Hero Banner, Featured Books, සිංහල/ඉංග්‍රීසි Category Filters.</li>
+        <li>Multi-Store Price Comparison: එකම පොත සාප්පු කිහිපයක ඇති විට මිල, දුර (km) සහ තොග සසඳා බැලීම.</li>
+        <li>Real-time Stock Badges ("In Stock at Nugegoda", "Out of Stock at Pettah").</li>
+        <li>Multi-Store Cart සහ Checkout ක්‍රියාවලිය.</li>
+        <li><strong>පාරිභෝගික පුවරුව (Buyer Dashboard):</strong> Live Order Tracking, සාප්පු අතර මාරු වූ තත්ත්වයන් (Routing Status), සුරැකි GPS ලිපින, පෙර ඇණවුම් බිල්පත්, Wishlist සහ Store Reviews.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 4: Smart Out-of-Stock Auto-Routing සහ 60-min Fail-Safe Engine</div>
+        <div class="phase-duration">සති 4 - 5</div>
+      </div>
+      <ul class="task-list">
+        <li>තොග නැති විට PostGIS Distance + Total Landed Cost ගණනය කරන Routing API එක.</li>
+        <li>Frontend Smart Modal: "මෙම පොත මෙම සාප්පුවේ අවසන්. කි.මී. 3.2ක් දුරින් පිහිටි Sarasavi Bookshop වෙතින් රු. 950කට ලබාගන්නද?" පෙන්වීම.</li>
+        <li>1-Click Auto-Transfer මඟින් ඇණවුම ක්ෂණිකව විකල්ප සාප්පුවට යොමු කිරීම.</li>
+        <li>මිනිත්තු 60ක් ඇතුළත භාර නොගතහොත් ඊළඟ සාප්පුවට ස්වයංක්‍රීයව Cascade වන Queue යාන්ත්‍රණය.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 5 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 5: AI බුද්ධිමත් පොත් නිර්දේශ සේවාව (FastAPI AI Service)</div>
+        <div class="phase-duration">සති 5 - 6</div>
+      </div>
+      <ul class="task-list">
+        <li>Python FastAPI microservice එකක් මඟින් TF-IDF Vector Space Model සැකසීම.</li>
+        <li>පාරිභෝගිකයා කලින් මිලදී ගත් පොත් පදනම් කරගෙන Cosine Similarity මඟින් ගැලපෙන නව පොත් නිර්දේශ කිරීම.</li>
+        <li>Web Storefront එකෙහි "ඔබ වෙනුවෙන්ම තෝරාගත් පොත් (Recommended For You)" කොටස සක්‍රීය කිරීම.</li>
+      </ul>
+    </div>
+
+    <!-- Phase 6 -->
+    <div class="phase-card">
+      <div class="phase-header">
+        <div class="phase-title">📍 අදියර 6: ප්‍රවාහන ඒකාබද්ධතාව සහ Super Admin Analytics (Logistics & Polish)</div>
+        <div class="phase-duration">සති 6 - 7</div>
+      </div>
+      <ul class="task-list">
+        <li>දේශීය කුරියර් (Domex / Koombiyo API) හරහා ස්වයංක්‍රීය Waybill අංකයක් හැදීම.</li>
+        <li>පාරිභෝගිකයාට Live Order Tracking පහසුකම ලබා දීම.</li>
+        <li>Super Admin Dashboard එක මඟින් සියලුම සාප්පුවල දෛනික විකුණුම් සහ Routing සාර්ථකත්ව ප්‍රතිශතය අධීක්ෂණය.</li>
+      </ul>
+    </div>
+
+    <!-- Tech Stack Summary -->
+    <h2 class="section-heading"><span class="section-number">05</span> තාක්ෂණික මෙවලම් සාරාංශය (Tech Stack Summary)</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ස්ථරය (Layer)</th>
+            <th>භාවිතා වන තාක්ෂණය (Technology)</th>
+            <th>ප්‍රයෝජනය (Benefit)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frontend & Web App</td>
+            <td>Next.js 14+ (React) + Tailwind CSS</td>
+            <td>ඉහළ SEO ශ්‍රේණිගත කිරීම් සහ වේගවත් UI ප්‍රතිචාර.</td>
+          </tr>
+          <tr>
+            <td>Core Backend & APIs</td>
+            <td>Next.js API Routes / Node.js</td>
+            <td>විශ්වාසනීය ගනුදෙනු පාලනය සහ පිරිසිදු Routing Logic.</td>
+          </tr>
+          <tr>
+            <td>Geospatial Database</td>
+            <td>PostgreSQL + PostGIS</td>
+            <td>පාරිභෝගිකයාට ළඟම සාප්පු සෙවීමේ ST_Distance queries.</td>
+          </tr>
+          <tr>
+            <td>AI Recommendation</td>
+            <td>Python (FastAPI + Scikit-learn)</td>
+            <td>Vector Space Model සහ Cosine Similarity මඟින් පොත් නිර්දේශ.</td>
+          </tr>
+          <tr>
+            <td>Logistics Integration</td>
+            <td>Domestic Courier APIs (Domex, Koombiyo)</td>
+            <td>ස්වයංක්‍රීය Waybill පත් සැකසීම සහ Live Delivery Tracking.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8fafc; border-radius: 8px; text-align: center; font-size: 13px; color: var(--text-muted);">
+      © 2026 Multi-Vendor Bookstore Platform • Technical Design & Engineering Implementation Guide
+    </div>
+
+  </div>
+
+</body>
+</html>
